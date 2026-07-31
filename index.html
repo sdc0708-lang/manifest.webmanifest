@@ -100,6 +100,18 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
   margin-top:14px;padding:10px 12px;border-radius:12px;background:#fff3cf;
   border:1px solid #d7bd61;font-size:15px
 }
+
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+.mode-btn{
+  min-height:60px;border:2px solid #8fa198;border-radius:16px;background:#fff;
+  color:var(--deep);font-weight:900;font-size:18px
+}
+.mode-btn.active{background:var(--main);color:#fff;border-color:var(--main)}
+.review-panel{display:none}
+.review-panel.active{display:block}
+.lead{font-size:18px;margin-top:-6px}
+@media(max-width:760px){.mode-switch{grid-template-columns:1fr}}
+
 @media(max-width:760px){
   .wrap{padding:10px}
   .grid,.two-output{grid-template-columns:1fr}
@@ -115,11 +127,17 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
   <header class="hero">
     <div class="brand">口福Labo presents</div>
     <h1>プレゼン・コンテンツ生成システム</h1>
-    <p>テーマと講演条件を入力すると、NotebookLM用の仮ソースとプレゼン生成プロンプトを作成します。</p>
-    <span class="badge">Ver.1.0α｜基本入力・仮ソース・プロンプト生成</span>
+    <p>講演の設計から、完成後のセルフフィードバックまでを一つの流れで支援します。</p>
+    <span class="badge">Ver.1.1α｜プレゼン作成＋セルフフィードバック</span>
     <div class="notice">生成内容は講演準備用のたたき台です。医学・制度・統計に関する記述は、必ず公的資料や原著で確認してください。</div>
   </header>
 
+  <section class="mode-switch">
+    <button id="modeCreate" class="mode-btn active" type="button">プレゼンを作る</button>
+    <button id="modeReview" class="mode-btn" type="button">完成資料を振り返る</button>
+  </section>
+
+  <div id="createMode">
   <nav class="stepnav">
     <button class="active" type="button" data-step="1">1 基本情報</button>
     <button type="button" data-step="2">2 講演設計</button>
@@ -277,6 +295,97 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
     <h3>この端末に保存した講演案</h3>
     <div id="savedList" class="saved-list"></div>
   </section>
+
+  </div>
+
+  <section id="reviewMode" class="panel review-panel">
+    <h2>プレゼン・セルフフィードバック</h2>
+    <p class="lead">完成したPDFやPowerPointをChatGPTに添付し、この画面で作ったレビュー用プロンプトを一緒に送ります。</p>
+
+    <div class="notice">
+      このHTML単体ではPDFやPowerPointの中身を直接解析しません。資料をChatGPTへ添付したうえで、生成したプロンプトを送る仕組みです。
+    </div>
+
+    <div class="grid">
+      <div class="field full">
+        <label class="title" for="reviewFile">資料ファイル名</label>
+        <input id="reviewFile" type="text" placeholder="例：サルコペニアとフレイル.pdf">
+      </div>
+      <div class="field">
+        <label class="title" for="reviewAudience">対象</label>
+        <select id="reviewAudience">
+          <option>地域住民</option><option>介護職</option><option>ケアマネジャー</option>
+          <option>看護師</option><option>歯科衛生士</option><option>歯科医師</option>
+          <option>医師</option><option>管理栄養士</option><option>学生</option><option>多職種</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="title" for="reviewDuration">講演時間</label>
+        <select id="reviewDuration">
+          <option value="15">15分</option><option value="30" selected>30分</option><option value="45">45分</option>
+          <option value="60">60分</option><option value="90">90分</option><option value="120">120分</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label class="title" for="reviewGoal">一番伝えたいこと</label>
+        <textarea id="reviewGoal" placeholder="例：フレイルは生活の中で予防でき、口の衰えにも早く気づくことが大切"></textarea>
+      </div>
+      <div class="field full">
+        <label class="title" for="reviewAction">聞き手に期待する行動</label>
+        <textarea id="reviewAction" placeholder="例：食事と運動を意識し、気になる変化があれば専門職へ相談する"></textarea>
+      </div>
+      <div class="field full">
+        <label class="title">重点的に見てほしい項目</label>
+        <div class="chips review-chips">
+          <label class="chip"><input type="checkbox" value="導入が興味を引くか" checked><span>導入</span></label>
+          <label class="chip"><input type="checkbox" value="話の流れが自然か" checked><span>ストーリー</span></label>
+          <label class="chip"><input type="checkbox" value="1枚ごとの情報量と文字量が適切か" checked><span>文字量</span></label>
+          <label class="chip"><input type="checkbox" value="対象者に専門性が合っているか" checked><span>対象者との一致</span></label>
+          <label class="chip"><input type="checkbox" value="図解や視覚表現が分かりやすいか" checked><span>図解</span></label>
+          <label class="chip"><input type="checkbox" value="行動変容につながる構成か" checked><span>行動変容</span></label>
+          <label class="chip"><input type="checkbox" value="根拠や参考資料の示し方が適切か" checked><span>根拠</span></label>
+          <label class="chip"><input type="checkbox" value="講演時間内に収まるか"><span>時間配分</span></label>
+          <label class="chip"><input type="checkbox" value="話し手が補足すべき箇所が明確か"><span>発表者ノート</span></label>
+        </div>
+      </div>
+      <div class="field full">
+        <label class="title" for="reviewConcern">自分で気になっている点</label>
+        <textarea id="reviewConcern" placeholder="例：専門用語が多いかもしれない。後半がやや単調かもしれない。"></textarea>
+      </div>
+      <div class="field full">
+        <label class="title" for="reviewStyle">フィードバックの受け方</label>
+        <select id="reviewStyle">
+          <option>良い点を先に示し、改善点を優先順位順に提案する</option>
+          <option>率直かつ具体的に改善点を示す</option>
+          <option>初心者を励ますコーチング調</option>
+          <option>専門家向けの厳密なレビュー</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="makeReviewPrompt" class="btn accent" type="button">セルフフィードバック用プロンプトを作る</button>
+    </div>
+
+    <div id="reviewResultArea" style="display:none">
+      <h3>ChatGPTに送るプロンプト</h3>
+      <div id="reviewOutput" class="output" contenteditable="true"></div>
+      <div class="actions">
+        <button id="copyReview" class="btn" type="button">コピーする</button>
+        <button id="saveReviewTxt" class="btn secondary" type="button">TXT保存</button>
+      </div>
+
+      <h3>レビュー後の使い方</h3>
+      <div class="summary">
+        <strong>おすすめの流れ：</strong><br>
+        ① PDFまたはPowerPointをChatGPTに添付<br>
+        ② 上のプロンプトを送る<br>
+        ③ 出てきた改善案を確認する<br>
+        ④ 必要な修正だけをNotebookLMまたはPowerPointへ反映する
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -510,6 +619,106 @@ $('#duration').onchange=updateSummary;
 $('#slideCount').onchange=updateSummary;
 updateSummary();
 renderSaved();
+
+function setMode(mode){
+  const create = mode==='create';
+  $('#createMode').style.display=create?'block':'none';
+  $('#reviewMode').classList.toggle('active',!create);
+  $('#modeCreate').classList.toggle('active',create);
+  $('#modeReview').classList.toggle('active',!create);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function selectedReviewItems(){
+  return $$('.review-chips input:checked').map(x=>x.value);
+}
+function makeReviewPrompt(){
+  const file=$('#reviewFile').value.trim()||'添付したプレゼン資料';
+  const audience=$('#reviewAudience').value;
+  const duration=$('#reviewDuration').value;
+  const goal=$('#reviewGoal').value.trim()||'未入力';
+  const action=$('#reviewAction').value.trim()||'未入力';
+  const concern=$('#reviewConcern').value.trim()||'特になし';
+  const style=$('#reviewStyle').value;
+  const items=selectedReviewItems();
+  const prompt=`あなたは、医療・介護・福祉領域の講演を支援するプレゼン編集者です。
+
+添付した「${file}」を、完成品を否定する添削ではなく、より伝わる講演へ育てるためのセルフフィードバックとしてレビューしてください。
+
+【講演条件】
+対象：${audience}
+講演時間：${duration}分
+一番伝えたいこと：${goal}
+聞き手に期待する行動：${action}
+
+【本人が気になっている点】
+${concern}
+
+【重点的に確認する項目】
+${items.length?items.map((x,i)=>`${i+1}. ${x}`).join('\n'):'全体を総合的に確認する'}
+
+【フィードバックの方針】
+${style}
+良い点を具体的に示したうえで、改善点は「必ず直した方がよい」「直すとさらに良くなる」「好みで調整できる」の3段階に分けてください。
+原文やスライドにない医学的事実を勝手に補わず、根拠の追加が必要な場合は「確認・追加が必要」と明示してください。
+
+【出力形式】
+1. 全体講評（200～300字）
+2. 良いところ（3～5点）
+3. 優先して改善するところ（最大5点）
+4. スライド別フィードバック
+   ・該当ページ
+   ・現在の役割
+   ・良い点
+   ・改善案
+   ・統合／分割／順番変更の必要性
+5. 対象者との一致
+   ・専門用語
+   ・文字量
+   ・理解しやすさ
+6. ストーリー評価
+   ・導入
+   ・展開
+   ・まとめ
+   ・行動提案
+7. 時間配分の見立て
+8. 根拠・参考資料で確認すべき点
+9. 改善後の推奨スライド構成
+10. NotebookLMまたはPowerPointで修正するときに使える改善プロンプト
+
+最後に、次の5項目を5段階で評価してください。
+・聞きやすさ
+・ストーリー
+・対象者との一致
+・視覚的な分かりやすさ
+・行動につながる力
+
+評価は点数だけでなく、理由を1文ずつ添えてください。`;
+  $('#reviewOutput').textContent=prompt;
+  $('#reviewResultArea').style.display='block';
+  $('#reviewResultArea').scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function copyReview(){
+  const text=$('#reviewOutput').innerText;
+  try{await navigator.clipboard.writeText(text);alert('コピーしました。')}
+  catch(e){
+    const r=document.createRange();r.selectNodeContents($('#reviewOutput'));
+    const s=window.getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();
+    alert('コピーしました。');
+  }
+}
+function saveReviewTxt(){
+  const text=$('#reviewOutput').innerText;
+  const file=$('#reviewFile').value.trim().replace(/\.[^.]+$/,'')||'presentation';
+  const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${file}_セルフフィードバック用プロンプト.txt`;a.click();URL.revokeObjectURL(a.href);
+}
+$('#modeCreate').onclick=()=>setMode('create');
+$('#modeReview').onclick=()=>setMode('review');
+$('#makeReviewPrompt').onclick=makeReviewPrompt;
+$('#copyReview').onclick=copyReview;
+$('#saveReviewTxt').onclick=saveReviewTxt;
+
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}</script>
 </body>
