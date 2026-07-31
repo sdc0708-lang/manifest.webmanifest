@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#315a4f">
+<title>口福Labo プレゼン・コンテンツ生成システム</title>
+<style>
+:root{
+  --main:#315a4f;--deep:#203d35;--sub:#e8efe9;--bg:#f5f1e8;
+  --paper:#fffdf8;--text:#202724;--muted:#66716c;--line:#a9b8b0;
+  --accent:#b98b52;--shadow:0 12px 32px rgba(36,55,48,.12);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:linear-gradient(180deg,#f8f5ee,#f2eee4);
+  color:var(--text);font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+  font-size:17px;line-height:1.7;font-weight:650;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.wrap{max-width:1080px;margin:auto;padding:18px}
+.hero{
+  background:linear-gradient(135deg,#fffdf8,#edf4ef);
+  border:2px solid #9fb1a8;border-radius:26px;padding:24px;
+  box-shadow:var(--shadow);margin-bottom:16px;position:relative;
+}
+.brand{font-size:16px;color:var(--main);font-weight:900;letter-spacing:.08em}
+.hero h1{margin:4px 0 8px;font-size:clamp(27px,4vw,43px);line-height:1.2}
+.hero p{margin:0;font-size:18px}
+.badge{
+  display:inline-block;margin-top:12px;padding:6px 10px;border-radius:999px;
+  background:#f5eadc;color:#684a2d;border:1px solid #d5b58d;font-size:14px;font-weight:900
+}
+.stepnav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.stepnav button{
+  min-height:58px;border:2px solid #91a39a;background:#fff;border-radius:15px;
+  font-weight:900;color:#42514b;padding:8px
+}
+.stepnav button.active{background:var(--main);color:#fff;border-color:var(--main)}
+.panel{
+  display:none;background:var(--paper);border:2px solid var(--line);border-radius:22px;
+  padding:22px;box-shadow:var(--shadow)
+}
+.panel.active{display:block}
+h2{margin:0 0 16px;font-size:26px}
+h3{margin:20px 0 8px;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label.title{font-weight:900}
+input,select,textarea{
+  width:100%;border:2px solid #9caca4;border-radius:13px;background:#fff;
+  padding:12px 13px;color:#111;font-weight:700
+}
+textarea{min-height:120px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:var(--main)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip input{display:none}
+.chip span{
+  display:inline-block;padding:9px 12px;border:2px solid #9caca4;background:#fff;
+  border-radius:999px;font-weight:850
+}
+.chip input:checked+span{background:var(--main);color:#fff;border-color:var(--main)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;min-height:52px;
+  border:none;border-radius:14px;padding:11px 18px;background:var(--main);
+  color:#fff;font-weight:900;text-decoration:none
+}
+.btn.secondary{background:#fff;color:var(--text);border:2px solid #8fa198}
+.btn.accent{background:var(--accent)}
+.help{font-size:14px;color:var(--muted);font-weight:650;margin:6px 0}
+.summary{
+  background:#edf4f0;border:1.5px solid #9eb1a8;border-radius:14px;padding:14px;margin-top:14px
+}
+.summary strong{color:var(--deep)}
+.output-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.output-tabs button{
+  border:2px solid #91a39a;background:#fff;border-radius:12px;padding:9px 12px;font-weight:900
+}
+.output-tabs button.active{background:var(--main);color:#fff;border-color:var(--main)}
+.output{
+  white-space:pre-wrap;min-height:360px;border:2px solid #93a49c;border-radius:15px;
+  padding:17px;background:#fff;font-weight:650
+}
+.two-output{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{border:1.5px solid #b3c0ba;border-radius:16px;padding:14px;background:#fff}
+.card h3{margin-top:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:#f0f5f2;border:1px solid #b1beb7;border-radius:13px;padding:12px;text-align:center}
+.stat b{display:block;font-size:24px;color:var(--main)}
+.saved-list{display:grid;gap:10px}
+.saved-item{
+  border:1.5px solid #aebbb5;border-radius:13px;padding:12px;background:#fff;
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center
+}
+.saved-item button{border:none;border-radius:10px;padding:8px 10px;font-weight:900}
+.notice{
+  margin-top:14px;padding:10px 12px;border-radius:12px;background:#fff3cf;
+  border:1px solid #d7bd61;font-size:15px
+}
+@media(max-width:760px){
+  .wrap{padding:10px}
+  .grid,.two-output{grid-template-columns:1fr}
+  .stepnav{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:1fr}
+  .actions .btn{flex:1 1 44%}
+}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="brand">口福Labo presents</div>
+    <h1>プレゼン・コンテンツ生成システム</h1>
+    <p>テーマと講演条件を入力すると、NotebookLM用の仮ソースとプレゼン生成プロンプトを作成します。</p>
+    <span class="badge">Ver.1.0α｜基本入力・仮ソース・プロンプト生成</span>
+    <div class="notice">生成内容は講演準備用のたたき台です。医学・制度・統計に関する記述は、必ず公的資料や原著で確認してください。</div>
+  </header>
+
+  <nav class="stepnav">
+    <button class="active" type="button" data-step="1">1 基本情報</button>
+    <button type="button" data-step="2">2 講演設計</button>
+    <button type="button" data-step="3">3 生成設定</button>
+    <button type="button" data-step="4">4 出力</button>
+  </nav>
+
+  <section id="step1" class="panel active">
+    <h2>1．基本情報</h2>
+    <div class="grid">
+      <div class="field full">
+        <label class="title" for="theme">テーマ</label>
+        <input id="theme" type="text" placeholder="例：口腔ケアと誤嚥性肺炎">
+      </div>
+      <div class="field full">
+        <label class="title" for="subtitle">サブタイトル</label>
+        <input id="subtitle" type="text" placeholder="例：地域で続けるための3つのポイント">
+      </div>
+      <div class="field">
+        <label class="title" for="audience">対象</label>
+        <select id="audience">
+          <option>地域住民</option><option>介護職</option><option>ケアマネジャー</option>
+          <option>看護師</option><option>歯科衛生士</option><option>歯科医師</option>
+          <option>医師</option><option>管理栄養士</option><option>学生</option><option>多職種</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="title" for="duration">講演時間</label>
+        <select id="duration">
+          <option value="15">15分</option><option value="30" selected>30分</option><option value="45">45分</option>
+          <option value="60">60分</option><option value="90">90分</option><option value="120">120分</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="title" for="presenter">発表者</label>
+        <input id="presenter" type="text" placeholder="例：澁谷英介">
+      </div>
+      <div class="field">
+        <label class="title" for="venue">開催場所・場面</label>
+        <input id="venue" type="text" placeholder="例：地域講座、施設内研修">
+      </div>
+    </div>
+    <div class="actions"><button class="btn" type="button" data-next="2">講演設計へ進む</button></div>
+  </section>
+
+  <section id="step2" class="panel">
+    <h2>2．講演設計</h2>
+    <div class="grid">
+      <div class="field full">
+        <label class="title" for="message">一番伝えたいこと</label>
+        <textarea id="message" placeholder="例：口腔ケアは、清潔にするだけでなく、食べることと肺炎予防を支える"></textarea>
+      </div>
+      <div class="field full">
+        <label class="title" for="action">聞き手に期待する行動</label>
+        <textarea id="action" placeholder="例：気になる変化があれば早めに専門職へ相談する"></textarea>
+      </div>
+      <div class="field full">
+        <label class="title" for="case">現場の具体例</label>
+        <textarea id="case" placeholder="例：在宅では、出血や動揺歯が怖くて介助者が歯磨きを中断することがある"></textarea>
+      </div>
+      <div class="field full">
+        <label class="title" for="questions">よくある質問・誤解</label>
+        <textarea id="questions" placeholder="例：歯がない人にも口腔ケアは必要？"></textarea>
+      </div>
+      <div class="field full">
+        <label class="title" for="keywords">キーワード（3～8語）</label>
+        <input id="keywords" type="text" placeholder="例：口腔ケア、誤嚥性肺炎、地域活動">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" type="button" data-back="1">戻る</button>
+      <button class="btn" type="button" data-next="3">生成設定へ進む</button>
+    </div>
+  </section>
+
+  <section id="step3" class="panel">
+    <h2>3．生成設定</h2>
+    <div class="grid">
+      <div class="field">
+        <label class="title" for="level">内容の難易度</label>
+        <select id="level">
+          <option>やさしい一般向け</option><option>基礎的な専門職向け</option>
+          <option>標準的な専門職向け</option><option>学術的・専門的</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="title" for="tone">話し方のトーン</label>
+        <select id="tone">
+          <option>親しみやすい</option><option>落ち着いて丁寧</option>
+          <option>実践的</option><option>学術的</option><option>問いかけを多くする</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="title" for="slideCount">スライド枚数</label>
+        <select id="slideCount">
+          <option value="auto">講演時間から自動</option>
+          <option value="10">10枚</option><option value="12">12枚</option><option value="15">15枚</option>
+          <option value="20">20枚</option><option value="30">30枚</option><option value="40">40枚</option><option value="50">50枚</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="title" for="sourceCount">仮ソース数</label>
+        <select id="sourceCount"><option value="4">4項目</option><option value="6" selected>6項目</option><option value="8">8項目</option></select>
+      </div>
+      <div class="field full">
+        <label class="title">入れたい要素</label>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" value="図解を多くする" checked><span>図解を多くする</span></label>
+          <label class="chip"><input type="checkbox" value="現場事例を入れる" checked><span>現場事例</span></label>
+          <label class="chip"><input type="checkbox" value="よくある誤解を扱う"><span>よくある誤解</span></label>
+          <label class="chip"><input type="checkbox" value="短いワークを入れる"><span>ミニワーク</span></label>
+          <label class="chip"><input type="checkbox" value="最後に行動提案を置く" checked><span>行動提案</span></label>
+          <label class="chip"><input type="checkbox" value="参考文献スライドを入れる" checked><span>参考文献</span></label>
+        </div>
+      </div>
+      <div class="field full">
+        <label class="title" for="referenceMemo">手元の資料・参考文献メモ</label>
+        <textarea id="referenceMemo" placeholder="URL、論文名、ガイドライン名など。未入力でも生成できます。"></textarea>
+      </div>
+    </div>
+
+    <div id="autoSummary" class="summary"></div>
+
+    <div class="actions">
+      <button class="btn secondary" type="button" data-back="2">戻る</button>
+      <button id="generate" class="btn accent" type="button">仮ソースとプロンプトを作る</button>
+    </div>
+  </section>
+
+  <section id="step4" class="panel">
+    <h2>4．NotebookLM用出力</h2>
+
+    <div class="stats">
+      <div class="stat"><span>推奨スライド</span><b id="statSlides">—</b></div>
+      <div class="stat"><span>推奨構成</span><b id="statSections">—</b></div>
+      <div class="stat"><span>講演時間</span><b id="statDuration">—</b></div>
+    </div>
+
+    <div class="output-tabs">
+      <button class="active" type="button" data-output="source">仮ソース</button>
+      <button type="button" data-output="prompt">生成プロンプト</button>
+      <button type="button" data-output="bundle">一括コピー用</button>
+    </div>
+
+    <div id="output" class="output" contenteditable="true"></div>
+
+    <div class="actions">
+      <button id="copy" class="btn" type="button">コピーする</button>
+      <button id="saveTxt" class="btn secondary" type="button">TXT保存</button>
+      <a class="btn secondary" href="https://notebooklm.google.com/" target="_blank" rel="noopener">NotebookLMを開く</a>
+      <button id="saveProject" class="btn secondary" type="button">入力内容を保存</button>
+      <button class="btn secondary" type="button" data-back="3">設定へ戻る</button>
+    </div>
+
+    <h3>この端末に保存した講演案</h3>
+    <div id="savedList" class="saved-list"></div>
+  </section>
+</div>
+
+<script>
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const SAVE_KEY='kofukulaboPresentationAlphaProjects';
+let outputs={source:'',prompt:'',bundle:''};
+let currentOutput='source';
+
+function showStep(n){
+  $$('.panel').forEach(p=>p.classList.toggle('active',p.id==='step'+n));
+  $$('.stepnav button').forEach(b=>b.classList.toggle('active',b.dataset.step===String(n)));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function recommendedSlides(minutes){
+  const map={15:10,30:15,45:22,60:30,90:42,120:52};
+  return map[minutes]||15;
+}
+function recommendedSections(minutes){
+  if(minutes<=15) return 4;
+  if(minutes<=30) return 5;
+  if(minutes<=60) return 6;
+  return 7;
+}
+function selectedElements(){
+  return $$('.chips input:checked').map(x=>x.value);
+}
+function collect(){
+  const duration=Number($('#duration').value);
+  const requested=$('#slideCount').value;
+  const slides=requested==='auto'?recommendedSlides(duration):Number(requested);
+  return {
+    theme:$('#theme').value.trim(),
+    subtitle:$('#subtitle').value.trim(),
+    audience:$('#audience').value,
+    duration,
+    presenter:$('#presenter').value.trim(),
+    venue:$('#venue').value.trim(),
+    message:$('#message').value.trim(),
+    action:$('#action').value.trim(),
+    caseText:$('#case').value.trim(),
+    questions:$('#questions').value.trim(),
+    keywords:$('#keywords').value.trim(),
+    level:$('#level').value,
+    tone:$('#tone').value,
+    slides,
+    sourceCount:Number($('#sourceCount').value),
+    elements:selectedElements(),
+    referenceMemo:$('#referenceMemo').value.trim()
+  };
+}
+function updateSummary(){
+  const d=collect();
+  $('#autoSummary').innerHTML=
+    `<strong>自動設計：</strong>${d.duration}分では、約${d.slides}枚・${recommendedSections(d.duration)}部構成を推奨します。`+
+    ` 1枚あたり約${Math.max(1,Math.round(d.duration/d.slides*10)/10)}分です。`;
+}
+function makeSource(d){
+  const themes=[
+    ['講演の目的と背景',`テーマ「${d.theme||'未入力'}」を、${d.audience}に伝える。講演全体の中心メッセージは「${d.message||'一番伝えたいこと未入力'}」。`],
+    ['対象者の現在地',`${d.audience}がすでに知っていること、混同しやすいこと、日常場面で困りやすいことを整理する。専門用語は${d.level}に合わせて説明する。`],
+    ['基本概念',`テーマに関係する主要概念を3～5項目に分け、定義・意味・相互関係を説明する。キーワード：${d.keywords||'未入力'}。`],
+    ['現場で起こること',`${d.caseText||'現場の具体例を1～2例示し、何が問題で、どこを観察し、誰に相談するかを整理する。'}`],
+    ['よくある質問・誤解',`${d.questions||'対象者が抱きやすい疑問や誤解を3項目程度想定し、断定しすぎずに回答する。'}`],
+    ['実践のポイント',`聞き手が講演後に実行できる行動を3項目に整理する。最終的な期待行動：${d.action||'未入力'}。`],
+    ['多職種・地域連携',`本人・家族・介護職・医療職などの役割を整理し、相談や連携のタイミングを示す。`],
+    ['まとめと持ち帰り',`中心メッセージ、観察ポイント、相談の目安、明日からの一歩を簡潔に再提示する。`]
+  ].slice(0,d.sourceCount);
+
+  const body=themes.map((x,i)=>`## Source ${String(i+1).padStart(3,'0')}：${x[0]}\n${x[1]}`).join('\n\n');
+  const refs=d.referenceMemo?`\n\n## 参考資料メモ\n${d.referenceMemo}`:'';
+  return `# NotebookLM用 仮ソース\n\n`+
+    `## 講演基本情報\nテーマ：${d.theme||'未入力'}\nサブタイトル：${d.subtitle||'なし'}\n対象：${d.audience}\n講演時間：${d.duration}分\n発表者：${d.presenter||'未入力'}\n開催場面：${d.venue||'未入力'}\n難易度：${d.level}\nトーン：${d.tone}\n\n`+
+    `※これはプレゼン設計用の仮ソースであり、医学的・制度的根拠そのものではありません。最終版では公的機関、ガイドライン、総説、必要最小限の原著論文を追加してください。\n\n`+
+    body+refs;
+}
+function makePrompt(d){
+  const elements=d.elements.length?d.elements.join('、'):'特別指定なし';
+  const sections=recommendedSections(d.duration);
+  return `あなたは、医療・介護・福祉領域の講演を支援するプレゼン編集者です。
+
+NotebookLMに登録されているソースだけを根拠として、以下の条件で編集可能なプレゼンテーションを作成してください。
+
+【講演条件】
+テーマ：${d.theme||'未入力'}
+サブタイトル：${d.subtitle||'なし'}
+対象：${d.audience}
+講演時間：${d.duration}分
+想定スライド数：約${d.slides}枚
+想定構成：${sections}部
+発表者：${d.presenter||'未入力'}
+開催場面：${d.venue||'未入力'}
+内容の難易度：${d.level}
+トーン：${d.tone}
+
+【一番伝えたいこと】
+${d.message||'未入力'}
+
+【聞き手に期待する行動】
+${d.action||'未入力'}
+
+【現場の具体例】
+${d.caseText||'未入力'}
+
+【よくある質問・誤解】
+${d.questions||'未入力'}
+
+【キーワード】
+${d.keywords||'未入力'}
+
+【入れたい要素】
+${elements}
+
+【作成上の重要条件】
+・各スライドはタイトル、本文、図形、矢印、表などを可能な限り編集可能にする
+・スライド全体を一枚の画像として固定しない
+・1枚につき伝えるメッセージは原則1つにする
+・本文を詰め込みすぎず、話し手が口頭で補える構成にする
+・対象者に合わせて専門用語を言い換え、必要な用語には短い説明を添える
+・現場事例は個人を特定できない形にする
+・根拠がソースにない内容は断定して追加しない
+・統計値、推奨、制度、診療報酬等を示す場合は出典を明記する
+・最後に「今日の持ち帰り」と「明日からできること」を置く
+・最終スライド付近に参考資料をまとめる
+
+【推奨ストーリー】
+1. 導入：なぜこのテーマが必要か
+2. 基本：まず知ってほしいこと
+3. 現場：実際には何が起こるか
+4. 判断：どこを見て、どう考えるか
+5. 行動：具体的に何をするか
+6. まとめ：持ち帰りと相談先
+
+各スライドについて、次の要素を含めてください。
+・スライド番号
+・タイトル
+・画面に表示する本文
+・図解やレイアウト案
+・発表者ノート
+・使用したソース`;
+}
+function generate(){
+  const d=collect();
+  if(!d.theme){alert('テーマを入力してください。');showStep(1);return;}
+  outputs.source=makeSource(d);
+  outputs.prompt=makePrompt(d);
+  outputs.bundle=`===== NotebookLM用 仮ソース =====\n\n${outputs.source}\n\n\n===== プレゼン生成プロンプト =====\n\n${outputs.prompt}`;
+  currentOutput='source';
+  $$('[data-output]').forEach(b=>b.classList.toggle('active',b.dataset.output==='source'));
+  $('#output').textContent=outputs.source;
+  $('#statSlides').textContent=d.slides+'枚';
+  $('#statSections').textContent=recommendedSections(d.duration)+'部';
+  $('#statDuration').textContent=d.duration+'分';
+  renderSaved();
+  showStep(4);
+}
+async function copyText(){
+  const text=$('#output').innerText;
+  if(!text.trim())return;
+  try{await navigator.clipboard.writeText(text);alert('コピーしました。')}
+  catch(e){
+    const r=document.createRange();r.selectNodeContents($('#output'));
+    const s=window.getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();
+    alert('コピーしました。');
+  }
+}
+function saveTxt(){
+  const text=$('#output').innerText;
+  const theme=$('#theme').value.trim()||'presentation';
+  const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`${theme}_${currentOutput}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function loadProjects(){
+  try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'[]')}catch(e){return[]}
+}
+function saveProject(){
+  const d=collect();
+  const list=loadProjects();
+  const item={id:Date.now(),savedAt:new Date().toLocaleString('ja-JP'),data:d};
+  list.unshift(item);
+  localStorage.setItem(SAVE_KEY,JSON.stringify(list.slice(0,10)));
+  renderSaved();
+  alert('この端末に保存しました。');
+}
+function applyProject(d){
+  $('#theme').value=d.theme||'';$('#subtitle').value=d.subtitle||'';$('#audience').value=d.audience||'地域住民';
+  $('#duration').value=String(d.duration||30);$('#presenter').value=d.presenter||'';$('#venue').value=d.venue||'';
+  $('#message').value=d.message||'';$('#action').value=d.action||'';$('#case').value=d.caseText||'';
+  $('#questions').value=d.questions||'';$('#keywords').value=d.keywords||'';$('#level').value=d.level||'やさしい一般向け';
+  $('#tone').value=d.tone||'親しみやすい';$('#slideCount').value=String(d.slides||'auto');
+  $('#referenceMemo').value=d.referenceMemo||'';
+  $$('.chips input').forEach(x=>x.checked=(d.elements||[]).includes(x.value));
+  updateSummary();showStep(1);
+}
+function renderSaved(){
+  const box=$('#savedList');box.innerHTML='';
+  const list=loadProjects();
+  if(!list.length){box.innerHTML='<p class="help">保存された講演案はありません。</p>';return;}
+  list.forEach(item=>{
+    const div=document.createElement('div');div.className='saved-item';
+    div.innerHTML=`<div><strong>${item.data.theme||'無題'}</strong><br><span class="help">${item.savedAt}｜${item.data.audience}｜${item.data.duration}分</span></div>
+    <div><button type="button" data-load="${item.id}">開く</button> <button type="button" data-delete="${item.id}">削除</button></div>`;
+    box.appendChild(div);
+  });
+  $$('[data-load]').forEach(b=>b.onclick=()=>{
+    const item=loadProjects().find(x=>String(x.id)===b.dataset.load);if(item)applyProject(item.data);
+  });
+  $$('[data-delete]').forEach(b=>b.onclick=()=>{
+    const next=loadProjects().filter(x=>String(x.id)!==b.dataset.delete);
+    localStorage.setItem(SAVE_KEY,JSON.stringify(next));renderSaved();
+  });
+}
+
+$$('[data-next]').forEach(b=>b.onclick=()=>showStep(b.dataset.next));
+$$('[data-back]').forEach(b=>b.onclick=()=>showStep(b.dataset.back));
+$$('.stepnav button').forEach(b=>b.onclick=()=>showStep(b.dataset.step));
+$$('[data-output]').forEach(b=>b.onclick=()=>{
+  currentOutput=b.dataset.output;$$('[data-output]').forEach(x=>x.classList.toggle('active',x===b));
+  $('#output').textContent=outputs[currentOutput]||'';
+});
+$('#generate').onclick=generate;
+$('#copy').onclick=copyText;
+$('#saveTxt').onclick=saveTxt;
+$('#saveProject').onclick=saveProject;
+$('#duration').onchange=updateSummary;
+$('#slideCount').onchange=updateSummary;
+updateSummary();
+renderSaved();
+</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}</script>
+</body>
+</html>
