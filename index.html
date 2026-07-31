@@ -128,13 +128,13 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
     <div class="brand">口福Labo presents</div>
     <h1>プレゼン・コンテンツ生成システム</h1>
     <p>講演の設計から、完成後のセルフフィードバックまでを一つの流れで支援します。</p>
-    <span class="badge">Ver.1.1α｜プレゼン作成＋セルフフィードバック</span>
+    <span class="badge">Ver.1.2α｜プレゼン作成＋かんたん手直し</span>
     <div class="notice">生成内容は講演準備用のたたき台です。医学・制度・統計に関する記述は、必ず公的資料や原著で確認してください。</div>
   </header>
 
   <section class="mode-switch">
     <button id="modeCreate" class="mode-btn active" type="button">プレゼンを作る</button>
-    <button id="modeReview" class="mode-btn" type="button">完成資料を振り返る</button>
+    <button id="modeReview" class="mode-btn" type="button">完成資料を手直しする</button>
   </section>
 
   <div id="createMode">
@@ -299,11 +299,11 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
   </div>
 
   <section id="reviewMode" class="panel review-panel">
-    <h2>プレゼン・セルフフィードバック</h2>
-    <p class="lead">完成したPDFやPowerPointをChatGPTに添付し、この画面で作ったレビュー用プロンプトを一緒に送ります。</p>
+    <h2>かんたん手直し</h2>
+    <p class="lead">NotebookLMでできたPDFやPowerPointをChatGPTに一度だけ見せて、重複や流れを確認します。</p>
 
     <div class="notice">
-      このHTML単体ではPDFやPowerPointの中身を直接解析しません。資料をChatGPTへ添付したうえで、生成したプロンプトを送る仕組みです。
+      最初の完成度はある程度担保されている前提です。細かな採点や全面的な作り直しではなく、講演前の最終確認として使います。
     </div>
 
     <div class="grid">
@@ -311,6 +311,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
         <label class="title" for="reviewFile">資料ファイル名</label>
         <input id="reviewFile" type="text" placeholder="例：サルコペニアとフレイル.pdf">
       </div>
+
       <div class="field">
         <label class="title" for="reviewAudience">対象</label>
         <select id="reviewAudience">
@@ -319,6 +320,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
           <option>医師</option><option>管理栄養士</option><option>学生</option><option>多職種</option>
         </select>
       </div>
+
       <div class="field">
         <label class="title" for="reviewDuration">講演時間</label>
         <select id="reviewDuration">
@@ -326,62 +328,48 @@ input:focus,select:focus,textarea:focus{outline:3px solid #c9ddd3;border-color:v
           <option value="60">60分</option><option value="90">90分</option><option value="120">120分</option>
         </select>
       </div>
+
       <div class="field full">
         <label class="title" for="reviewGoal">一番伝えたいこと</label>
-        <textarea id="reviewGoal" placeholder="例：フレイルは生活の中で予防でき、口の衰えにも早く気づくことが大切"></textarea>
+        <textarea id="reviewGoal" placeholder="例：フレイルは生活の中で予防でき、口の小さな変化にも早く気づくことが大切"></textarea>
       </div>
+
       <div class="field full">
-        <label class="title" for="reviewAction">聞き手に期待する行動</label>
-        <textarea id="reviewAction" placeholder="例：食事と運動を意識し、気になる変化があれば専門職へ相談する"></textarea>
-      </div>
-      <div class="field full">
-        <label class="title">重点的に見てほしい項目</label>
+        <label class="title">確認すること</label>
         <div class="chips review-chips">
-          <label class="chip"><input type="checkbox" value="導入が興味を引くか" checked><span>導入</span></label>
-          <label class="chip"><input type="checkbox" value="話の流れが自然か" checked><span>ストーリー</span></label>
-          <label class="chip"><input type="checkbox" value="1枚ごとの情報量と文字量が適切か" checked><span>文字量</span></label>
-          <label class="chip"><input type="checkbox" value="対象者に専門性が合っているか" checked><span>対象者との一致</span></label>
-          <label class="chip"><input type="checkbox" value="図解や視覚表現が分かりやすいか" checked><span>図解</span></label>
-          <label class="chip"><input type="checkbox" value="行動変容につながる構成か" checked><span>行動変容</span></label>
-          <label class="chip"><input type="checkbox" value="根拠や参考資料の示し方が適切か" checked><span>根拠</span></label>
-          <label class="chip"><input type="checkbox" value="講演時間内に収まるか"><span>時間配分</span></label>
-          <label class="chip"><input type="checkbox" value="話し手が補足すべき箇所が明確か"><span>発表者ノート</span></label>
+          <label class="chip"><input type="checkbox" value="同じ語句や似た表現が不自然に繰り返されていないか" checked><span>語句の重複</span></label>
+          <label class="chip"><input type="checkbox" value="複数のスライドで同じ内容を重複して説明していないか" checked><span>内容の重複</span></label>
+          <label class="chip"><input type="checkbox" value="統合できるスライドや短くできる箇所がないか" checked><span>統合できる箇所</span></label>
+          <label class="chip"><input type="checkbox" value="導入からまとめまでの話の流れに飛躍がないか" checked><span>話の流れ</span></label>
+          <label class="chip"><input type="checkbox" value="初めて聞く人に分かりにくい語句や説明不足がないか" checked><span>初見で分かるか</span></label>
         </div>
       </div>
+
       <div class="field full">
-        <label class="title" for="reviewConcern">自分で気になっている点</label>
-        <textarea id="reviewConcern" placeholder="例：専門用語が多いかもしれない。後半がやや単調かもしれない。"></textarea>
-      </div>
-      <div class="field full">
-        <label class="title" for="reviewStyle">フィードバックの受け方</label>
-        <select id="reviewStyle">
-          <option>良い点を先に示し、改善点を優先順位順に提案する</option>
-          <option>率直かつ具体的に改善点を示す</option>
-          <option>初心者を励ますコーチング調</option>
-          <option>専門家向けの厳密なレビュー</option>
-        </select>
+        <label class="title" for="reviewConcern">自分で気になっている点（任意）</label>
+        <textarea id="reviewConcern" placeholder="例：後半で同じ表現が何度か出ている気がする"></textarea>
       </div>
     </div>
 
     <div class="actions">
-      <button id="makeReviewPrompt" class="btn accent" type="button">セルフフィードバック用プロンプトを作る</button>
+      <button id="makeReviewPrompt" class="btn accent" type="button">手直しプロンプトを作る</button>
     </div>
 
     <div id="reviewResultArea" style="display:none">
       <h3>ChatGPTに送るプロンプト</h3>
       <div id="reviewOutput" class="output" contenteditable="true"></div>
+
       <div class="actions">
         <button id="copyReview" class="btn" type="button">コピーする</button>
         <button id="saveReviewTxt" class="btn secondary" type="button">TXT保存</button>
       </div>
 
-      <h3>レビュー後の使い方</h3>
       <div class="summary">
-        <strong>おすすめの流れ：</strong><br>
+        <strong>使い方：</strong><br>
         ① PDFまたはPowerPointをChatGPTに添付<br>
         ② 上のプロンプトを送る<br>
-        ③ 出てきた改善案を確認する<br>
-        ④ 必要な修正だけをNotebookLMまたはPowerPointへ反映する
+        ③ 指摘された最大3点だけを確認<br>
+        ④ 最後に出てくる短い修正プロンプトをNotebookLMへ戻す
       </div>
     </div>
   </section>
@@ -636,73 +624,84 @@ function makeReviewPrompt(){
   const audience=$('#reviewAudience').value;
   const duration=$('#reviewDuration').value;
   const goal=$('#reviewGoal').value.trim()||'未入力';
-  const action=$('#reviewAction').value.trim()||'未入力';
   const concern=$('#reviewConcern').value.trim()||'特になし';
-  const style=$('#reviewStyle').value;
   const items=selectedReviewItems();
+
   const prompt=`あなたは、医療・介護・福祉領域の講演を支援するプレゼン編集者です。
 
-添付した「${file}」を、完成品を否定する添削ではなく、より伝わる講演へ育てるためのセルフフィードバックとしてレビューしてください。
+添付した「${file}」を、講演前の最終確認として簡潔にレビューしてください。
+この資料は、すでにNotebookLM等でたたき台として一定の完成度まで作られています。
+全面的な作り直しや細かな採点はせず、大きな見落としと重複だけを確認してください。
 
 【講演条件】
 対象：${audience}
 講演時間：${duration}分
 一番伝えたいこと：${goal}
-聞き手に期待する行動：${action}
 
 【本人が気になっている点】
 ${concern}
 
-【重点的に確認する項目】
-${items.length?items.map((x,i)=>`${i+1}. ${x}`).join('\n'):'全体を総合的に確認する'}
+【重点的に確認すること】
+${items.length ? items.map((x,i)=>`${i+1}. ${x}`).join('\n') : '語句の重複、内容の重複、話の流れを確認する'}
 
-【フィードバックの方針】
-${style}
-良い点を具体的に示したうえで、改善点は「必ず直した方がよい」「直すとさらに良くなる」「好みで調整できる」の3段階に分けてください。
-原文やスライドにない医学的事実を勝手に補わず、根拠の追加が必要な場合は「確認・追加が必要」と明示してください。
+【確認時のルール】
+・同じ単語だけでなく、似た意味の表現や言い換えの重複も確認する
+・複数ページで同じ説明を繰り返している場合は、該当ページを示す
+・まとめで意図的に繰り返している表現は、必要な反復として区別する
+・統合できるスライドがあれば、どのページ同士かを示す
+・医学的な新情報を勝手に追加しない
+・根拠確認が必要な箇所は「要確認」とだけ示す
+・細かな好みの修正は増やさず、改善点は最大3点に絞る
+・良い部分や現在の構成は、できるだけ残す
 
 【出力形式】
-1. 全体講評（200～300字）
-2. 良いところ（3～5点）
-3. 優先して改善するところ（最大5点）
-4. スライド別フィードバック
+1. 良いところ
+   ・現在の資料で、そのまま残してよい点を2～3点
+
+2. 重複している語句・表現
    ・該当ページ
-   ・現在の役割
-   ・良い点
-   ・改善案
-   ・統合／分割／順番変更の必要性
-5. 対象者との一致
-   ・専門用語
-   ・文字量
-   ・理解しやすさ
-6. ストーリー評価
-   ・導入
-   ・展開
-   ・まとめ
-   ・行動提案
-7. 時間配分の見立て
-8. 根拠・参考資料で確認すべき点
-9. 改善後の推奨スライド構成
-10. NotebookLMまたはPowerPointで修正するときに使える改善プロンプト
+   ・重複している語句または似た表現
+   ・残す表現
+   ・置き換える表現
+   ※不自然な重複がなければ「大きな重複なし」とする
 
-最後に、次の5項目を5段階で評価してください。
-・聞きやすさ
-・ストーリー
-・対象者との一致
-・視覚的な分かりやすさ
-・行動につながる力
+3. 重複している内容
+   ・該当ページ
+   ・同じ内容になっている理由
+   ・統合、削除、役割分担のどれがよいか
+   ※まとめとして必要な反復は削除対象にしない
 
-評価は点数だけでなく、理由を1文ずつ添えてください。`;
+4. 直した方がよい点
+   ・最大3点
+   ・該当ページ
+   ・理由
+   ・具体的な修正文または構成変更案
+
+5. NotebookLMへ戻す短い修正プロンプト
+   ・上記の必要な修正だけを反映する
+   ・現在のデザインと全体構成はできるだけ維持する
+   ・新しい内容をむやみに追加しない
+   ・そのままコピーできる簡潔な文章にする
+
+全体講評や点数評価は不要です。`;
+
   $('#reviewOutput').textContent=prompt;
   $('#reviewResultArea').style.display='block';
   $('#reviewResultArea').scrollIntoView({behavior:'smooth',block:'start'});
 }
 async function copyReview(){
   const text=$('#reviewOutput').innerText;
-  try{await navigator.clipboard.writeText(text);alert('コピーしました。')}
-  catch(e){
-    const r=document.createRange();r.selectNodeContents($('#reviewOutput'));
-    const s=window.getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();
+  try{
+    await navigator.clipboard.writeText(text);
+    alert('コピーしました。');
+  }catch(e){
+    const r=document.createRange();
+    r.selectNodeContents($('#reviewOutput'));
+    const s=window.getSelection();
+    s.removeAllRanges();
+    s.addRange(r);
+    document.execCommand('copy');
+    s.removeAllRanges();
     alert('コピーしました。');
   }
 }
@@ -710,8 +709,11 @@ function saveReviewTxt(){
   const text=$('#reviewOutput').innerText;
   const file=$('#reviewFile').value.trim().replace(/\.[^.]+$/,'')||'presentation';
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`${file}_セルフフィードバック用プロンプト.txt`;a.click();URL.revokeObjectURL(a.href);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`${file}_かんたん手直しプロンプト.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 $('#modeCreate').onclick=()=>setMode('create');
 $('#modeReview').onclick=()=>setMode('review');
